@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ExternalLink, Image, FileText, Tag, Globe, AlertCircle, CheckCircle, Zap, TrendingUp, Eye, Share2, Target } from 'lucide-react';
+import { Search, ExternalLink, Image, FileText, Tag, Globe, AlertCircle, CheckCircle, Zap, TrendingUp, Eye, Share2, Target, Terminal, Code, Bug, Cpu, Database, Monitor, Server } from 'lucide-react';
 
 interface SEOData {
   title?: string;
@@ -139,15 +139,11 @@ const SEOTester = () => {
     setSeoData(null);
 
     try {
-      // Simulate progress updates
       setProgress(20);
       
-      // First, let's try to validate the URL format
       const urlObj = new URL(url);
       setProgress(40);
       
-      // For demonstration, we'll use a CORS proxy service
-      // In a real app, you'd want to use a backend service
       const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
       const response = await fetch(proxyUrl);
       setProgress(70);
@@ -170,7 +166,6 @@ const SEOTester = () => {
       setSeoScore(score);
       setProgress(100);
       
-      // Trigger results animation
       setTimeout(() => {
         setShowResults(true);
       }, 200);
@@ -225,19 +220,6 @@ const SEOTester = () => {
     return 'F';
   };
 
-  const ScoreIndicator = ({ hasValue, label }: { hasValue: boolean; label: string }) => (
-    <div className="flex items-center gap-2 group cursor-default">
-      <div className="relative">
-        {hasValue ? (
-          <CheckCircle className="h-4 w-4 text-success group-hover:scale-110 transition-transform duration-200" />
-        ) : (
-          <AlertCircle className="h-4 w-4 text-destructive group-hover:scale-110 transition-transform duration-200" />
-        )}
-      </div>
-      <span className="text-sm group-hover:text-foreground transition-colors duration-200">{label}</span>
-    </div>
-  );
-
   const AnimatedCounter = ({ value, duration = 1000 }: { value: number; duration?: number }) => {
     const [count, setCount] = useState(0);
 
@@ -261,87 +243,141 @@ const SEOTester = () => {
     return <span>{count}</span>;
   };
 
+  const DataField = ({ label, value, isGood }: { label: string; value: string; isGood?: boolean }) => (
+    <div className="bg-muted/20 p-3 rounded border-l-2 border-l-primary/50">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-muted-foreground font-mono text-xs">{label}</span>
+        {value && isGood !== undefined && (
+          <div className={`w-2 h-2 rounded-full ${isGood ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+        )}
+      </div>
+      <div className="text-foreground break-words font-mono text-sm">
+        {value || <span className="text-red-500">❌ null</span>}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-subtle relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full animate-pulse-glow"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary-glow/5 rounded-full animate-pulse-glow" style={{animationDelay: '1s'}}></div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Terminal-style background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgb(255,255,255) 1px, transparent 0)`,
+          backgroundSize: '20px 20px'
+        }}></div>
       </div>
 
       <div className="container mx-auto px-4 py-8 relative z-10">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="p-2 bg-gradient-primary rounded-xl shadow-elegant">
-                <Target className="h-6 w-6 text-white" />
+        <div className="max-w-6xl mx-auto">
+          {/* Header - Dev Tool Style */}
+          <div className="mb-8 animate-fade-in">
+            <div className="flex items-center gap-3 mb-4 p-4 bg-muted/50 rounded-lg border border-border/50">
+              <div className="flex items-center gap-2">
+                <Terminal className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-1 text-xs font-mono">
+                  <span className="text-primary">$</span>
+                  <span className="text-muted-foreground">seo-analyzer</span>
+                  <span className="text-primary">--analyze</span>
+                </div>
               </div>
-              <h1 className="text-4xl font-bold text-foreground">SEO Analyzer</h1>
+              <Separator orientation="vertical" className="h-4" />
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                <span className="text-muted-foreground font-mono">dev-tools</span>
+              </div>
             </div>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Get comprehensive SEO insights with our advanced analyzer. 
-              Discover optimization opportunities and track your website's performance.
-            </p>
+            
+            <div className="text-left">
+              <h1 className="text-2xl font-bold text-foreground font-mono flex items-center gap-2">
+                <Code className="h-6 w-6 text-primary" />
+                SEO Debug Console
+              </h1>
+              <p className="text-sm text-muted-foreground font-mono mt-1">
+                → Advanced web scraping and metadata analysis tool
+              </p>
+            </div>
           </div>
 
-          {/* URL Input Form */}
-          <Card className="mb-8 shadow-card animate-scale-in border-0 bg-card/80 backdrop-blur-sm">
-            <CardContent className="pt-6">
+          {/* Command Input - Dev Tool Style */}
+          <Card className="mb-8 animate-scale-in border border-border bg-card">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2 text-sm">
+                <Monitor className="h-4 w-4 text-primary" />
+                <span className="font-mono text-muted-foreground">Network Analysis</span>
+                <Separator orientation="vertical" className="h-4" />
+                <span className="font-mono text-xs text-muted-foreground">Status: Ready</span>
+              </div>
+            </CardHeader>
+            <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   <div className="flex-1 relative">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary font-mono text-sm">
+                      →
+                    </div>
                     <Input
                       type="url"
                       placeholder="https://example.com"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      className="text-lg pr-12 border-2 focus:border-primary transition-all duration-300"
+                      className="font-mono pl-8 pr-10 bg-muted/30 border-border focus:border-primary"
                       required
                     />
-                    <Globe className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Globe className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   </div>
                   <Button 
                     type="submit" 
-                    size="lg"
                     disabled={isLoading}
-                    className="bg-gradient-primary hover:shadow-elegant transition-all duration-300 hover:scale-105 relative overflow-hidden group"
+                    className="bg-primary hover:bg-primary/90 font-mono text-sm"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
                     {isLoading ? (
                       <>
-                        <Zap className="h-4 w-4 mr-2 animate-bounce-subtle" />
-                        Analyzing...
+                        <Cpu className="h-4 w-4 mr-2 animate-spin" />
+                        Processing
                       </>
                     ) : (
                       <>
                         <Search className="h-4 w-4 mr-2" />
-                        Analyze SEO
+                        Execute
                       </>
                     )}
                   </Button>
                 </div>
                 
                 {isLoading && (
-                  <div className="space-y-2 animate-fade-in">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Analyzing website...</span>
-                      <span className="text-primary font-medium">{progress}%</span>
+                  <div className="space-y-3 animate-fade-in bg-muted/30 p-3 rounded-md">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-muted-foreground">$ curl -s {url} | seo-parse</span>
+                      <span className="text-primary">{progress}%</span>
                     </div>
-                    <Progress value={progress} className="h-2" />
+                    <Progress value={progress} className="h-1" />
+                    <div className="text-xs font-mono text-muted-foreground">
+                      ⚡ Fetching HTML content... Parsing metadata... Calculating scores...
+                    </div>
                   </div>
                 )}
               </form>
             </CardContent>
           </Card>
 
-          {/* Error Message */}
+          {/* Error Console */}
           {error && (
-            <Card className="mb-8 border-destructive">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-2 text-destructive">
-                  <AlertCircle className="h-5 w-5" />
-                  <span>{error}</span>
+            <Card className="mb-8 border-destructive bg-destructive/5">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Bug className="h-4 w-4 text-destructive" />
+                  <span className="font-mono text-destructive">Error Console</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-destructive/10 p-3 rounded font-mono text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-destructive">✗</span>
+                    <div className="text-destructive">
+                      <div className="font-semibold">RuntimeError:</div>
+                      <div className="text-xs mt-1">{error}</div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -350,239 +386,301 @@ const SEOTester = () => {
           {/* Results */}
           {seoData && seoScore && (
             <div className={`space-y-6 ${showResults ? 'animate-fade-in-up' : 'opacity-0'}`}>
-              {/* SEO Score Dashboard */}
-              <Card className="shadow-card border-0 bg-gradient-primary text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-glow to-primary opacity-90"></div>
-                <CardContent className="pt-6 relative z-10">
-                  <div className="text-center mb-6">
-                    <div className="inline-flex items-center gap-3 mb-4">
-                      <TrendingUp className="h-8 w-8" />
-                      <h2 className="text-2xl font-bold">SEO Score</h2>
+              {/* Performance Metrics Dashboard */}
+              <Card className="border border-border bg-card">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Database className="h-4 w-4 text-primary" />
+                      <span className="font-mono text-sm">Performance Metrics</span>
                     </div>
-                    <div className="relative inline-flex items-center justify-center">
-                      <div className="text-6xl font-bold mb-2">
-                        <AnimatedCounter value={seoScore.total} />
-                      </div>
-                      <div className="absolute -top-2 -right-8 text-lg font-medium bg-white/20 px-2 py-1 rounded-full">
-                        {getScoreGrade(seoScore.total)}
-                      </div>
-                    </div>
-                    <p className="text-white/80 mb-6">out of 100 points</p>
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {getScoreGrade(seoScore.total)}
+                    </Badge>
                   </div>
-                  
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="bg-white/10 rounded-lg p-4">
-                      <div className="text-2xl font-bold mb-1">
-                        <AnimatedCounter value={seoScore.breakdown.basic} />
-                      </div>
-                      <div className="text-sm text-white/80">Basic SEO</div>
-                      <div className="text-xs text-white/60">/ 40 pts</div>
-                    </div>
-                    <div className="bg-white/10 rounded-lg p-4">
-                      <div className="text-2xl font-bold mb-1">
-                        <AnimatedCounter value={seoScore.breakdown.social} />
-                      </div>
-                      <div className="text-sm text-white/80">Social Media</div>
-                      <div className="text-xs text-white/60">/ 30 pts</div>
-                    </div>
-                    <div className="bg-white/10 rounded-lg p-4">
-                      <div className="text-2xl font-bold mb-1">
-                        <AnimatedCounter value={seoScore.breakdown.technical} />
-                      </div>
-                      <div className="text-sm text-white/80">Technical</div>
-                      <div className="text-xs text-white/60">/ 30 pts</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Overview */}
-              <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Eye className="h-5 w-5" />
-                    Quick Overview
-                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <ScoreIndicator hasValue={!!seoData.title} label="Page Title" />
-                    <ScoreIndicator hasValue={!!seoData.description} label="Meta Description" />
-                    <ScoreIndicator hasValue={!!seoData.ogImage} label="OG Image" />
-                    <ScoreIndicator hasValue={!!seoData.canonical} label="Canonical URL" />
-                    <ScoreIndicator hasValue={!!seoData.h1} label="H1 Tag" />
-                    <ScoreIndicator hasValue={!!seoData.lang} label="Language" />
-                    <ScoreIndicator hasValue={!!seoData.viewport} label="Viewport" />
-                    <ScoreIndicator hasValue={!!seoData.charset} label="Charset" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Basic SEO */}
-              <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    Basic SEO
-                    <Badge variant="secondary" className="ml-auto">
-                      {seoScore.breakdown.basic}/40 pts
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="group hover:bg-muted/30 p-3 rounded-lg transition-colors duration-200">
-                    <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Tag className="h-3 w-3" />
-                      Page Title
-                      {seoData.title && (
-                        <Badge variant={seoData.title.length >= 30 && seoData.title.length <= 60 ? 'default' : 'secondary'} className="text-xs">
-                          {seoData.title.length} chars
-                        </Badge>
-                      )}
-                    </label>
-                    <p className="mt-2 text-foreground font-medium">{seoData.title || 'Not found'}</p>
-                    {seoData.title && (
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        {seoData.title.length < 30 && <span className="text-yellow-600">⚠️ Too short (recommended: 30-60 characters)</span>}
-                        {seoData.title.length > 60 && <span className="text-yellow-600">⚠️ Too long (recommended: 30-60 characters)</span>}
-                        {seoData.title.length >= 30 && seoData.title.length <= 60 && <span className="text-green-600">✓ Good length</span>}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Meta Description</label>
-                    <p className="mt-1 text-foreground">{seoData.description || 'Not found'}</p>
-                    {seoData.description && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Length: {seoData.description.length} characters
-                      </p>
-                    )}
-                  </div>
-
-                  {seoData.keywords && (
-                    <>
-                      <Separator />
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Keywords</label>
-                        <p className="mt-1 text-foreground">{seoData.keywords}</p>
-                      </div>
-                    </>
-                  )}
-
-                  {seoData.canonical && (
-                    <>
-                      <Separator />
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Canonical URL</label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className="text-foreground break-all">{seoData.canonical}</p>
-                          <Button variant="ghost" size="sm" asChild>
-                            <a href={seoData.canonical} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Overall Score */}
+                    <div className="md:col-span-1 bg-muted/30 p-4 rounded-lg">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold font-mono text-primary mb-1">
+                          <AnimatedCounter value={seoScore.total} />
                         </div>
+                        <div className="text-xs text-muted-foreground font-mono">TOTAL SCORE</div>
+                        <div className="text-xs text-muted-foreground">/100</div>
                       </div>
-                    </>
-                  )}
+                    </div>
+                    
+                    {/* Breakdown */}
+                    <div className="md:col-span-3 grid grid-cols-3 gap-3">
+                      <div className="bg-muted/20 p-3 rounded">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="h-3 w-3 text-blue-500" />
+                          <span className="text-xs font-mono text-muted-foreground">BASIC</span>
+                        </div>
+                        <div className="text-xl font-bold font-mono">
+                          <AnimatedCounter value={seoScore.breakdown.basic} />
+                        </div>
+                        <div className="text-xs text-muted-foreground">/40 pts</div>
+                      </div>
+                      
+                      <div className="bg-muted/20 p-3 rounded">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Share2 className="h-3 w-3 text-green-500" />
+                          <span className="text-xs font-mono text-muted-foreground">SOCIAL</span>
+                        </div>
+                        <div className="text-xl font-bold font-mono">
+                          <AnimatedCounter value={seoScore.breakdown.social} />
+                        </div>
+                        <div className="text-xs text-muted-foreground">/30 pts</div>
+                      </div>
+                      
+                      <div className="bg-muted/20 p-3 rounded">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Server className="h-3 w-3 text-orange-500" />
+                          <span className="text-xs font-mono text-muted-foreground">TECH</span>
+                        </div>
+                        <div className="text-xl font-bold font-mono">
+                          <AnimatedCounter value={seoScore.breakdown.technical} />
+                        </div>
+                        <div className="text-xs text-muted-foreground">/30 pts</div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Open Graph */}
-              <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Share2 className="h-5 w-5 text-primary" />
-                    Open Graph (Facebook)
-                    <Badge variant="secondary" className="ml-auto">
-                      {seoScore.breakdown.social}/30 pts
-                    </Badge>
-                  </CardTitle>
+              {/* Status Indicators */}
+              <Card className="border border-border bg-card">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-primary" />
+                    <span className="font-mono text-sm">System Status</span>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {seoData.ogImage && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">OG Image</label>
-                      <div className="mt-2">
-                        <img 
-                          src={seoData.ogImage} 
-                          alt="OG Preview" 
-                          className="max-w-sm h-auto border rounded-md shadow-sm"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                        <p className="text-xs text-muted-foreground mt-1 break-all">{seoData.ogImage}</p>
-                      </div>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono text-xs">
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.title ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>title</span>
                     </div>
-                  )}
-                  
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">OG Title</label>
-                    <p className="mt-1 text-foreground">{seoData.ogTitle || 'Not found'}</p>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.description ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>description</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.ogImage ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>og:image</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.canonical ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>canonical</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.h1 ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>h1</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.lang ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>lang</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.viewport ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>viewport</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded">
+                      {!!seoData.charset ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <span>charset</span>
+                    </div>
                   </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">OG Description</label>
-                    <p className="mt-1 text-foreground">{seoData.ogDescription || 'Not found'}</p>
-                  </div>
+                </CardContent>
+              </Card>
 
-                  {seoData.ogType && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">OG Type</label>
-                      <Badge variant="secondary" className="mt-1">{seoData.ogType}</Badge>
+              {/* Detailed Analysis */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Basic Metadata */}
+                <Card className="border border-border bg-card">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" />
+                        <span className="font-mono text-sm">Basic Metadata</span>
+                      </div>
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {seoScore.breakdown.basic}/40
+                      </Badge>
                     </div>
-                  )}
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <DataField 
+                      label="title" 
+                      value={seoData.title || ''} 
+                      isGood={!!seoData.title && seoData.title.length >= 30 && seoData.title.length <= 60}
+                    />
+                    <DataField 
+                      label="description" 
+                      value={seoData.description || ''} 
+                      isGood={!!seoData.description && seoData.description.length >= 120 && seoData.description.length <= 160}
+                    />
+                    <DataField 
+                      label="h1" 
+                      value={seoData.h1 || ''} 
+                      isGood={!!seoData.h1}
+                    />
+                    <DataField 
+                      label="keywords" 
+                      value={seoData.keywords || ''} 
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Open Graph Data */}
+                <Card className="border border-border bg-card">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Share2 className="h-4 w-4 text-primary" />
+                        <span className="font-mono text-sm">Social Media</span>
+                      </div>
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {seoScore.breakdown.social}/30
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <DataField 
+                      label="og:title" 
+                      value={seoData.ogTitle || ''} 
+                      isGood={!!seoData.ogTitle}
+                    />
+                    <DataField 
+                      label="og:description" 
+                      value={seoData.ogDescription || ''} 
+                      isGood={!!seoData.ogDescription}
+                    />
+                    <DataField 
+                      label="og:image" 
+                      value={seoData.ogImage || ''} 
+                      isGood={!!seoData.ogImage}
+                    />
+                    <DataField 
+                      label="og:type" 
+                      value={seoData.ogType || ''} 
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Technical SEO */}
+              <Card className="border border-border bg-card">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Server className="h-4 w-4 text-primary" />
+                      <span className="font-mono text-sm">Technical Analysis</span>
+                    </div>
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {seoScore.breakdown.technical}/30
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DataField 
+                      label="canonical" 
+                      value={seoData.canonical || ''} 
+                      isGood={!!seoData.canonical}
+                    />
+                    <DataField 
+                      label="lang" 
+                      value={seoData.lang || ''} 
+                      isGood={!!seoData.lang}
+                    />
+                    <DataField 
+                      label="viewport" 
+                      value={seoData.viewport || ''} 
+                      isGood={!!seoData.viewport}
+                    />
+                    <DataField 
+                      label="charset" 
+                      value={seoData.charset || ''} 
+                      isGood={!!seoData.charset}
+                    />
+                    <DataField 
+                      label="robots" 
+                      value={seoData.metaRobots || 'index,follow'} 
+                    />
+                    <DataField 
+                      label="url" 
+                      value={seoData.url} 
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Twitter Cards */}
-              <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Image className="h-5 w-5 text-primary" />
-                    Twitter Cards
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {seoData.twitterCard && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Card Type</label>
-                      <Badge variant="secondary" className="mt-1">{seoData.twitterCard}</Badge>
+              {(seoData.twitterCard || seoData.twitterTitle || seoData.twitterDescription) && (
+                <Card className="border border-border bg-card">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm">Twitter Cards</span>
                     </div>
-                  )}
-                  
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Twitter Title</label>
-                    <p className="mt-1 text-foreground">{seoData.twitterTitle || 'Not found'}</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Twitter Description</label>
-                    <p className="mt-1 text-foreground">{seoData.twitterDescription || 'Not found'}</p>
-                  </div>
-
-                  {seoData.twitterImage && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Twitter Image</label>
-                      <div className="mt-2">
-                        <img 
-                          src={seoData.twitterImage} 
-                          alt="Twitter Preview" 
-                          className="max-w-sm h-auto border rounded-md shadow-sm"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                        <p className="text-xs text-muted-foreground mt-1 break-all">{seoData.twitterImage}</p>
-                      </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DataField 
+                        label="twitter:card" 
+                        value={seoData.twitterCard || ''} 
+                      />
+                      <DataField 
+                        label="twitter:title" 
+                        value={seoData.twitterTitle || ''} 
+                      />
+                      <DataField 
+                        label="twitter:description" 
+                        value={seoData.twitterDescription || ''} 
+                      />
+                      <DataField 
+                        label="twitter:image" 
+                        value={seoData.twitterImage || ''} 
+                      />
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
         </div>
