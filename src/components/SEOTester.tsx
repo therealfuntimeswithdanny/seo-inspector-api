@@ -681,6 +681,138 @@ const SEOTester = () => {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Preview Section */}
+              <Card className="border border-border bg-card">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-primary" />
+                    <span className="font-mono text-sm">Social & Search Previews</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Google Search Preview */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-mono text-muted-foreground mb-3 flex items-center gap-2">
+                      <Search className="h-3 w-3" />
+                      GOOGLE SEARCH RESULT
+                    </div>
+                    <div className="bg-white p-4 rounded border border-border/50">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Globe className="h-4 w-4 text-gray-500" />
+                          <span className="text-xs text-gray-600">{new URL(seoData.url).hostname}</span>
+                        </div>
+                        <div className="text-blue-600 text-xl hover:underline cursor-pointer line-clamp-1">
+                          {seoData.title || 'No title found'}
+                        </div>
+                        <div className="text-sm text-gray-600 line-clamp-2">
+                          {seoData.description || 'No meta description available'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Facebook/Open Graph Preview */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-mono text-muted-foreground mb-3 flex items-center gap-2">
+                      <Share2 className="h-3 w-3" />
+                      FACEBOOK / OPEN GRAPH
+                    </div>
+                    <div className="bg-white rounded border border-border/50 overflow-hidden">
+                      {seoData.ogImage && (
+                        <div className="w-full h-48 bg-gray-200 relative overflow-hidden">
+                          <img 
+                            src={seoData.ogImage} 
+                            alt="OG Preview" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400 text-sm">Image unavailable</div>';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="p-3 bg-gray-50">
+                        <div className="text-xs text-gray-500 uppercase mb-1">
+                          {new URL(seoData.url).hostname}
+                        </div>
+                        <div className="text-gray-900 font-semibold text-base line-clamp-1">
+                          {seoData.ogTitle || seoData.title || 'No title'}
+                        </div>
+                        <div className="text-sm text-gray-600 line-clamp-2 mt-1">
+                          {seoData.ogDescription || seoData.description || 'No description'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Twitter Card Preview */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-mono text-muted-foreground mb-3 flex items-center gap-2">
+                      <span className="text-[#1DA1F2]">𝕏</span>
+                      TWITTER / X CARD
+                    </div>
+                    <div className="bg-white rounded-2xl border border-border/50 overflow-hidden">
+                      {(seoData.twitterImage || seoData.ogImage) && (
+                        <div className="w-full h-56 bg-gray-200 relative overflow-hidden">
+                          <img 
+                            src={seoData.twitterImage || seoData.ogImage} 
+                            alt="Twitter Preview" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400 text-sm">Image unavailable</div>';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="p-3 border-t border-gray-200">
+                        <div className="text-sm text-gray-600 line-clamp-1">
+                          {new URL(seoData.url).hostname}
+                        </div>
+                        <div className="text-gray-900 font-semibold text-base line-clamp-1 mt-1">
+                          {seoData.twitterTitle || seoData.ogTitle || seoData.title || 'No title'}
+                        </div>
+                        <div className="text-sm text-gray-600 line-clamp-2 mt-1">
+                          {seoData.twitterDescription || seoData.ogDescription || seoData.description || 'No description'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* LinkedIn Preview */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-mono text-muted-foreground mb-3 flex items-center gap-2">
+                      <span className="text-[#0A66C2]">in</span>
+                      LINKEDIN
+                    </div>
+                    <div className="bg-white rounded border border-border/50 overflow-hidden">
+                      {seoData.ogImage && (
+                        <div className="w-full h-52 bg-gray-200 relative overflow-hidden">
+                          <img 
+                            src={seoData.ogImage} 
+                            alt="LinkedIn Preview" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400 text-sm">Image unavailable</div>';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="p-3 bg-white">
+                        <div className="text-gray-900 font-semibold text-sm line-clamp-2">
+                          {seoData.ogTitle || seoData.title || 'No title'}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {new URL(seoData.url).hostname}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
