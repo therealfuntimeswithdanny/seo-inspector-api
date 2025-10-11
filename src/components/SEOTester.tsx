@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ExternalLink, Image, FileText, Tag, Globe, AlertCircle, CheckCircle, Zap, TrendingUp, Eye, Share2, Target, Terminal, Code, Bug, Cpu, Database, Monitor, Server } from 'lucide-react';
+import { Search, ExternalLink, Image, FileText, Tag, Globe, AlertCircle, CheckCircle, Zap, TrendingUp, Eye, Share2, Target, Terminal, Code, Bug, Cpu, Database, Monitor, Server, Book } from 'lucide-react';
 
 interface SEOData {
   title?: string;
@@ -285,6 +286,13 @@ const SEOTester = () => {
                 <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
                 <span className="text-muted-foreground font-mono">dev-tools</span>
               </div>
+              <Separator orientation="vertical" className="h-4" />
+              <Link to="/docs">
+                <Button variant="ghost" size="sm" className="text-xs font-mono">
+                  <Book className="h-3 w-3 mr-1" />
+                  API Docs
+                </Button>
+              </Link>
             </div>
             
             <div className="text-left">
