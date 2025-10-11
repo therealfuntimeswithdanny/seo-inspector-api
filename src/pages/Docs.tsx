@@ -21,7 +21,7 @@ const Docs = () => {
     });
   };
 
-  const apiUrl = 'https://gjhfnqiknusundbktwxs.supabase.co/functions/v1/analyze-seo';
+  const apiUrl = 'https://seo-api.madebydannyuk.workers.dev/functions/v1/analyze-seo';
 
   return (
     <div className="min-h-screen bg-background">
