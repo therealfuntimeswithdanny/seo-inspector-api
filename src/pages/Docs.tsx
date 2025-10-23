@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Code, Terminal, Book, ChevronRight, Copy, Check, Home } from 'lucide-react';
+import { Code, Terminal, Book, ChevronRight, Copy, Check, Home, AlertTriangle, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { APIPlayground } from '@/components/APIPlayground';
 
 const Docs = () => {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
@@ -221,6 +222,108 @@ const Docs = () => {
   }
 }`}
               </pre>
+            </CardContent>
+          </Card>
+
+          {/* API Playground */}
+          <Card className="mb-6 border border-border bg-card">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                <span className="font-mono text-sm">Interactive Playground</span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <APIPlayground />
+            </CardContent>
+          </Card>
+
+          {/* Batch Analysis */}
+          <Card className="mb-6 border border-border bg-card">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <ChevronRight className="h-4 w-4 text-primary" />
+                <span className="font-mono text-sm">Batch Analysis</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Analyze multiple URLs in a single request (max 5 URLs):</p>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-mono text-muted-foreground">BATCH REQUEST</span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => copyToClipboard('{\n  "urls": [\n    "https://example.com",\n    "https://another-site.com"\n  ]\n}', 'batch')}
+                  >
+                    {copiedSection === 'batch' ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <pre className="bg-muted/30 p-4 rounded font-mono text-sm border border-border/50 overflow-x-auto">
+{`{
+  "urls": [
+    "https://example.com",
+    "https://another-site.com"
+  ]
+}`}
+                </pre>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Response Schema */}
+          <Card className="mb-6 border border-border bg-card">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Code className="h-4 w-4 text-primary" />
+                <span className="font-mono text-sm">Response Schema</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2 text-sm">
+                <div className="flex gap-2"><code className="text-primary">success</code><span className="text-muted-foreground">boolean - Analysis success status</span></div>
+                <div className="flex gap-2"><code className="text-primary">cached</code><span className="text-muted-foreground">boolean - Whether result was cached</span></div>
+                <div className="flex gap-2"><code className="text-primary">data.title</code><span className="text-muted-foreground">string - Page title tag</span></div>
+                <div className="flex gap-2"><code className="text-primary">data.description</code><span className="text-muted-foreground">string - Meta description</span></div>
+                <div className="flex gap-2"><code className="text-primary">data.ogImage</code><span className="text-muted-foreground">string - Open Graph image URL</span></div>
+                <div className="flex gap-2"><code className="text-primary">score.total</code><span className="text-muted-foreground">number - Overall SEO score (0-100)</span></div>
+                <div className="flex gap-2"><code className="text-primary">score.breakdown</code><span className="text-muted-foreground">object - Score breakdown by category</span></div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Troubleshooting */}
+          <Card className="mb-6 border border-destructive/50 bg-destructive/5">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <span className="font-mono text-sm">Troubleshooting</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-sm mb-2">Rate Limiting (429)</h4>
+                <p className="text-sm text-muted-foreground">Maximum 10 requests per minute per IP. Wait 60 seconds before retrying.</p>
+              </div>
+              <Separator />
+              <div>
+                <h4 className="font-semibold text-sm mb-2">Invalid URL (400)</h4>
+                <p className="text-sm text-muted-foreground">Ensure URL starts with http:// or https:// and is properly formatted.</p>
+              </div>
+              <Separator />
+              <div>
+                <h4 className="font-semibold text-sm mb-2">Failed to Fetch (502)</h4>
+                <p className="text-sm text-muted-foreground">Target website may be blocking requests or experiencing issues. Try a different URL.</p>
+              </div>
+              <Separator />
+              <div>
+                <h4 className="font-semibold text-sm mb-2">Caching</h4>
+                <p className="text-sm text-muted-foreground">Results are cached for 1 hour. Cached responses include "cached": true field.</p>
+              </div>
             </CardContent>
           </Card>
 

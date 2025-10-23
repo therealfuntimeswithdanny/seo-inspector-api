@@ -111,6 +111,28 @@ const calculateSEOScore = (data: SEOData): SEOScore => {
   };
 };
 
+// Simple in-memory cache for demo (use Redis/Supabase for production)
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 3600000; // 1 hour
+
+// Rate limiting (simple in-memory, use proper solution for production)
+const rateLimits = new Map<string, number[]>();
+const RATE_LIMIT = 10; // requests per minute
+
+const checkRateLimit = (ip: string): boolean => {
+  const now = Date.now();
+  const requests = rateLimits.get(ip) || [];
+  const recentRequests = requests.filter(time => now - time < 60000);
+  
+  if (recentRequests.length >= RATE_LIMIT) {
+    return false;
+  }
+  
+  recentRequests.push(now);
+  rateLimits.set(ip, recentRequests);
+  return true;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -118,11 +140,82 @@ serve(async (req) => {
   }
 
   try {
-    const { url } = await req.json();
+    // Rate limiting check
+    const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(clientIp)) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Rate limit exceeded. Please try again in a minute.',
+          retryAfter: 60 
+        }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
+    const { url, urls } = await req.json();
+
+    // Support batch analysis
+    if (urls && Array.isArray(urls)) {
+      if (urls.length > 5) {
+        return new Response(
+          JSON.stringify({ error: 'Maximum 5 URLs allowed per batch request' }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      const results = await Promise.all(
+        urls.map(async (u: string) => {
+          try {
+            // Check cache
+            const cached = cache.get(u);
+            if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+              return { url: u, ...cached.data, cached: true };
+            }
+
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`;
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+            
+            const data = await response.json();
+            if (!data.contents) throw new Error('No content received');
+
+            const seoData = extractMetaData(data.contents, u);
+            const seoScore = calculateSEOScore(seoData);
+            const result = { data: seoData, score: seoScore, success: true };
+            
+            // Cache result
+            cache.set(u, { data: result, timestamp: Date.now() });
+            
+            return { url: u, ...result };
+          } catch (error) {
+            return { 
+              url: u, 
+              success: false, 
+              error: error instanceof Error ? error.message : 'Analysis failed' 
+            };
+          }
+        })
+      );
+
+      return new Response(
+        JSON.stringify({ success: true, results }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Single URL analysis
     if (!url) {
       return new Response(
-        JSON.stringify({ error: 'URL parameter is required' }),
+        JSON.stringify({ 
+          error: 'URL parameter is required',
+          hint: 'Send {"url": "https://example.com"} or {"urls": ["https://example.com"]} for batch' 
+        }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -132,12 +225,28 @@ serve(async (req) => {
 
     console.log('Analyzing SEO for URL:', url);
 
+    // Check cache
+    const cached = cache.get(url);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      console.log('Returning cached result for:', url);
+      return new Response(
+        JSON.stringify({ ...cached.data, cached: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Validate URL
     try {
-      new URL(url);
+      const urlObj = new URL(url);
+      if (!urlObj.protocol.match(/^https?:/)) {
+        throw new Error('Only HTTP(S) URLs are supported');
+      }
     } catch {
       return new Response(
-        JSON.stringify({ error: 'Invalid URL format' }),
+        JSON.stringify({ 
+          error: 'Invalid URL format',
+          hint: 'Please provide a valid URL starting with http:// or https://' 
+        }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -162,28 +271,48 @@ serve(async (req) => {
     // Extract and analyze SEO data
     const seoData = extractMetaData(data.contents, url);
     const seoScore = calculateSEOScore(seoData);
+    
+    const result = {
+      success: true,
+      data: seoData,
+      score: seoScore,
+      cached: false
+    };
+
+    // Cache the result
+    cache.set(url, { data: result, timestamp: Date.now() });
 
     console.log('SEO analysis completed successfully');
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        data: seoData,
-        score: seoScore,
-      }),
+      JSON.stringify(result),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
     console.error('Error in analyze-seo function:', error);
+    
+    let errorMessage = 'Internal server error';
+    let statusCode = 500;
+    
+    if (error instanceof Error) {
+      if (error.message.includes('fetch')) {
+        errorMessage = 'Failed to fetch the website. The site may be blocking requests or experiencing issues.';
+        statusCode = 502;
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: errorMessage,
+        hint: statusCode === 502 ? 'Try a different URL or check if the website is accessible' : undefined
       }),
       {
-        status: 500,
+        status: statusCode,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );

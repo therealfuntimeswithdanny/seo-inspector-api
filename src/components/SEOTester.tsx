@@ -7,7 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ExternalLink, Image, FileText, Tag, Globe, AlertCircle, CheckCircle, Zap, TrendingUp, Eye, Share2, Target, Terminal, Code, Bug, Cpu, Database, Monitor, Server, Book } from 'lucide-react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { LoadingSkeleton } from '@/components/LoadingSkeleton';
+import { Search, ExternalLink, Image, FileText, Tag, Globe, AlertCircle, CheckCircle, Zap, TrendingUp, Eye, Share2, Target, Terminal, Code, Bug, Cpu, Database, Monitor, Server, Book, Copy, Check, Download, History } from 'lucide-react';
 
 interface SEOData {
   title?: string;
@@ -39,6 +41,12 @@ interface SEOScore {
   };
 }
 
+const EXAMPLE_URLS = [
+  'https://github.com',
+  'https://stripe.com',
+  'https://vercel.com'
+];
+
 const SEOTester = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +55,9 @@ const SEOTester = () => {
   const [progress, setProgress] = useState(0);
   const [seoScore, setSeoScore] = useState<SEOScore | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [urlHistory, setUrlHistory] = useLocalStorage<string[]>('seo-history', []);
+  const [copied, setCopied] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
 
   const extractMetaData = (html: string, url: string): SEOData => {
@@ -135,6 +146,11 @@ const SEOTester = () => {
       return;
     }
 
+    // Add to history
+    if (!urlHistory.includes(url)) {
+      setUrlHistory([url, ...urlHistory.slice(0, 9)]); // Keep last 10
+    }
+
     setIsLoading(true);
     setError(null);
     setSeoData(null);
@@ -206,6 +222,26 @@ const SEOTester = () => {
     analyzeSEO();
   };
 
+  const copyToClipboard = () => {
+    if (!seoData || !seoScore) return;
+    navigator.clipboard.writeText(JSON.stringify({ data: seoData, score: seoScore }, null, 2));
+    setCopied(true);
+    toast({ title: "Copied!", description: "Results copied to clipboard" });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const exportAsJSON = () => {
+    if (!seoData || !seoScore) return;
+    const blob = new Blob([JSON.stringify({ data: seoData, score: seoScore }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `seo-analysis-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exported!", description: "Analysis saved as JSON" });
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'success';
     if (score >= 60) return 'warning';
@@ -219,6 +255,13 @@ const SEOTester = () => {
     if (score >= 60) return 'C';
     if (score >= 50) return 'D';
     return 'F';
+  };
+
+  const getScoreBadge = (total: number) => {
+    if (total >= 80) return <Badge className="bg-success text-success-foreground hover:bg-success/90">Excellent</Badge>;
+    if (total >= 60) return <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">Good</Badge>;
+    if (total >= 40) return <Badge className="bg-warning text-warning-foreground hover:bg-warning/90">Fair</Badge>;
+    return <Badge variant="destructive">Poor</Badge>;
   };
 
   const AnimatedCounter = ({ value, duration = 1000 }: { value: number; duration?: number }) => {
@@ -352,6 +395,54 @@ const SEOTester = () => {
                   </Button>
                 </div>
                 
+                {/* Example URLs */}
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-xs text-muted-foreground font-mono">Try:</span>
+                  {EXAMPLE_URLS.map((exampleUrl) => (
+                    <Button
+                      key={exampleUrl}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUrl(exampleUrl)}
+                      className="text-xs font-mono"
+                    >
+                      {exampleUrl}
+                    </Button>
+                  ))}
+                  {urlHistory.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowHistory(!showHistory)}
+                      className="text-xs font-mono"
+                    >
+                      <History className="h-3 w-3 mr-1" />
+                      History
+                    </Button>
+                  )}
+                </div>
+
+                {/* History Dropdown */}
+                {showHistory && urlHistory.length > 0 && (
+                  <div className="bg-muted/30 rounded border border-border p-2 space-y-1 animate-fade-in">
+                    {urlHistory.map((histUrl, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setUrl(histUrl);
+                          setShowHistory(false);
+                        }}
+                        className="w-full text-left text-xs font-mono px-2 py-1 rounded hover:bg-muted text-foreground"
+                      >
+                        {histUrl}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
                 {isLoading && (
                   <div className="space-y-3 animate-fade-in bg-muted/30 p-3 rounded-md">
                     <div className="flex items-center justify-between text-xs font-mono">
@@ -398,13 +489,29 @@ const SEOTester = () => {
               <Card className="border border-border bg-card">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                       <Database className="h-4 w-4 text-primary" />
                       <span className="font-mono text-sm">Performance Metrics</span>
                     </div>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      {getScoreGrade(seoScore.total)}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {getScoreBadge(seoScore.total)}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={copyToClipboard}
+                        className="text-xs"
+                      >
+                        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={exportAsJSON}
+                        className="text-xs"
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
